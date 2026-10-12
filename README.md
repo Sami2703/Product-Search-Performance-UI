@@ -10,6 +10,7 @@ App
 └── ProductDetails
 ```
 ### The data flow will be:
+
 ```
 products
    ↓
@@ -91,21 +92,12 @@ const filteredProducts = useMemo(() => {
     product.name.toLowerCase().includes(search.toLowerCase())
   );
 }, [products, search]);
-
-```
-const [search, setSearch] = useState("");
-
-const filteredProducts = useMemo(() => {
-  return products.filter((product) =>
-    product.name.toLowerCase().includes(search.toLowerCase())
-  );
-}, [products, search]);
-
 ```
 
 ### What happens?
 
 ```
+
 App renders
      ↓
 useMemo checks dependencies
@@ -121,14 +113,16 @@ NO  → reuse previous result
 
 ```
 "useMemo memoizes the result of the filtering calculation. The filtering runs only when products or search changes, which can reduce unnecessary calculations, especially with a large product list."
+
 ```
 
 ### Important: useMemo does not stop App from re-rendering.
 
 
-Part 3 — Optimize ProductCard
-Use:
+# Part 3 — Optimize ProductCard
+### Use:
 React.memo()
+
 
 ```
 import React from "react";
@@ -145,21 +139,23 @@ const ProductCard = React.memo(function ProductCard({ product }) {
 });
 
 export default ProductCard;
-
 ```
-Now React can skip rendering ProductCard when its props haven't changed.
+
+### Now React can skip rendering ProductCard when its props haven't changed.
+
 
 ## Example
 Suppose:
+
 ```
 Product 1 → Laptop
 Product 2 → Mobile
 Product 3 → Keyboard
-
 ```
 If the parent re-renders but the Mobile product prop is unchanged:
 
-```Parent re-render
+```
+Parent re-render
        ↓
 ProductCard
        ↓
@@ -178,7 +174,7 @@ Skip unnecessary render
 ## Use:
 useCallback()
 
-for:
+### for:
 handleDelete
 handleEdit
 
@@ -194,7 +190,8 @@ const handleDelete = (id) => {
 ```
 
 Every render creates a new function reference.
-For example:
+
+####  For example:
 
 ```
 Render 1
@@ -339,8 +336,10 @@ Skip ProductCard when props are unchanged
 
 
 
-Part 5 — Explain the optimization
-Be able to explain:
+# Part 5 — Explain the optimization
+### Be able to explain:
+
+```
 Normal rendering
        ↓
 Parent re-renders
@@ -355,14 +354,16 @@ useCallback
        ↓
 Reduce unnecessary work
 
+```
+
 ## The 3 Most Important Concepts
 
 ```
 | Tool          | What it optimizes   | Remember      |
 |---            |---                  |---            |
-| `useMemo`     | Calculated value    | **Value**     |
-| `useCallback` | Function reference  | **Function**  |
-| `React.memo`  | Component re-render | **Component** |
+| `useMemo`     | Calculated value    | Value         |
+| `useCallback` | Function reference  | Function      |
+| `React.memo`  | Component re-render | Component     |
 
 ```
 
@@ -384,16 +385,26 @@ useCallback → Function
 "I first identify the unnecessary renders using React DevTools Profiler. Then I use React.memo for suitable child components, useMemo for expensive calculations, and useCallback for stable callback references. I also colocate state, optimize Context usage, and lazy-load heavy components where needed."
 
 ### 🎯 Follow-up Questions You Should Prepare
-1. Does React.memo completely prevent re-renders?
-2. Does useMemo prevent a component from re-rendering?
-3. Why do we need useCallback with React.memo?
-4. What happens if we use useCallback everywhere?
-5. What is shallow comparison in React.memo?
-6. When should you NOT use useMemo?
-7. How do you identify unnecessary re-renders?
-8. What is React DevTools Profiler?
-9. Can Context cause unnecessary re-renders?
-10. How would you optimize a list containing 10,000 products?
+## 1. Does React.memo completely prevent re-renders?
+   No. It can skip re-renders when props are unchanged, but state or consumed Context changes can still trigger them.
+## 2. Does useMemo prevent a component from re-rendering?
+   No. It memoizes a calculated value to avoid unnecessary recalculations.
+## 3. Why do we need useCallback with React.memo?
+   To maintain stable function references so memoized child components can skip unnecessary re-renders.
+## 4. What happens if we use useCallback everywhere?
+   It adds complexity and memoization overhead without always improving performance.
+## 5. What is shallow comparison in React.memo?
+   It compares props using Object.is for each prop. New object or function references are considered changed.
+## 6. When should you NOT use useMemo?
+   For cheap calculations where memoization overhead isn't worthwhile.
+## 7. How do you identify unnecessary re-renders?
+   Use React DevTools Profiler to inspect component renders and their performance.
+## 8. What is React DevTools Profiler?
+   A tool that records component renders and helps identify performance bottlenecks.
+## 9. Can Context cause unnecessary re-renders?
+   Yes. Consumers can re-render when their Context value changes. Split Contexts or stabilize provider values when appropriate.
+## 10. How would you optimize a list containing 10,000 products?
+   Use list virtualization, pagination, efficient filtering, stable keys, and profiling-guided memoization.
 
 ## ⭐ One important interview correction
 ### Don't say:
